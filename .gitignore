@@ -10,3 +10,8 @@ __pycache__/
 # Editor files
 .vscode/
 .idea/
+
+# Frontend dependencies and build output
+frontend/node_modules/
+frontend/dist/
+.pnpm-store/
