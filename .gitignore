@@ -1,0 +1,12 @@
+# Local secrets and Python environment
+backend/.env
+backend/cloudsentinel.db
+.venv/
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+
+# Editor files
+.vscode/
+.idea/
