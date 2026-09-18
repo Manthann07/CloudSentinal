@@ -11,15 +11,17 @@ import {
   ShieldCheck,
   AlertTriangle,
   Cpu,
-  Layers,
   Filter,
-  ArrowDownCircle,
   Cloud,
   CloudLightning,
   CloudCheck,
+  Download,
+  FileCheck,
+  Loader2,
 } from "lucide-react";
 import { TEST_METADATA } from "./TestGrid";
 import { soundFX } from "../utils/audio";
+import { generateRunPdfReport, generateAllRunsPdfReport } from "../utils/pdfGenerator";
 
 export default function TerminalReportSection({
   runs,
@@ -32,20 +34,18 @@ export default function TerminalReportSection({
   const [logFilter, setLogFilter] = useState("ALL"); // ALL, INFO, WARN, ERROR
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [autoScroll, setAutoScroll] = useState(false);
+  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+  const [isGeneratingAllPdf, setIsGeneratingAllPdf] = useState(false);
   const terminalBodyRef = useRef(null);
+
+  // Auto-scroll disabled by default
+  const [autoScroll] = useState(false);
 
   useEffect(() => {
     if (activeTab === "terminal" && autoScroll && terminalBodyRef.current) {
       terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
     }
   }, [selectedRun?.output, report?.output, activeTab, autoScroll]);
-
-  useEffect(() => {
-    if (terminalBodyRef.current) {
-      terminalBodyRef.current.scrollTop = terminalBodyRef.current.scrollHeight;
-    }
-  }, [selectedRun?.id]);
 
   const filteredRuns = runs.filter((run) => {
     if (filterStatus === "all") return true;
@@ -62,6 +62,38 @@ export default function TerminalReportSection({
     navigator.clipboard.writeText(textToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Generate PDF for selected single test run
+  const handleGeneratePdf = () => {
+    if (!selectedRun) return;
+    soundFX.playClick();
+    setIsGeneratingPdf(true);
+    setTimeout(() => {
+      try {
+        generateRunPdfReport({ selectedRun, report });
+      } catch (err) {
+        console.error("PDF Export error:", err);
+      } finally {
+        setIsGeneratingPdf(false);
+      }
+    }, 150);
+  };
+
+  // Generate PDF for ALL test runs / pass-fail history
+  const handleGenerateAllPdf = () => {
+    if (!runs || runs.length === 0) return;
+    soundFX.playClick();
+    setIsGeneratingAllPdf(true);
+    setTimeout(() => {
+      try {
+        generateAllRunsPdfReport({ runs });
+      } catch (err) {
+        console.error("All Runs PDF Export error:", err);
+      } finally {
+        setIsGeneratingAllPdf(false);
+      }
+    }, 150);
   };
 
   const rawOutput = report?.output || selectedRun?.output || "System idling. Select an execution run from the ledger to inspect live AWS cloud stdout logs.";
@@ -114,7 +146,22 @@ export default function TerminalReportSection({
               <Clock className="panel-icon" />
               <h3>Cloud Execution Ledger</h3>
             </div>
-            <span className="run-count-badge">{runs.length} Runs</span>
+            <div className="ledger-header-actions">
+              <button
+                className={`pdf-export-btn small ${isGeneratingAllPdf ? "loading" : ""}`}
+                onClick={handleGenerateAllPdf}
+                disabled={isGeneratingAllPdf || runs.length === 0}
+                title="Generate & download PDF summary report for ALL test case results (Pass/Fail history)"
+              >
+                {isGeneratingAllPdf ? (
+                  <Loader2 className="pdf-icon spin" />
+                ) : (
+                  <FileCheck className="pdf-icon" />
+                )}
+                <span>{isGeneratingAllPdf ? "Exporting..." : "All Runs PDF"}</span>
+              </button>
+              <span className="run-count-badge">{runs.length} Runs</span>
+            </div>
           </div>
 
           <div className="history-filter-bar">
@@ -207,10 +254,32 @@ export default function TerminalReportSection({
 
             <div className="tabs-right">
               {selectedRun && (
-                <div className={`active-run-badge status-${selectedRun.status}`}>
-                  <CloudLightning className="badge-cloud-icon" />
-                  <span>RUN ID: {selectedRun.id}</span>
-                </div>
+                <>
+                  <button
+                    className={`pdf-export-btn ${isGeneratingPdf ? "loading" : ""}`}
+                    onClick={handleGeneratePdf}
+                    disabled={isGeneratingPdf}
+                    title="Generate & Export PDF Audit Report for selected test run"
+                  >
+                    {isGeneratingPdf ? (
+                      <Loader2 className="pdf-icon spin" />
+                    ) : (
+                      <Download className="pdf-icon" />
+                    )}
+                    <span>{isGeneratingPdf ? "Generating..." : "Generate PDF Report"}</span>
+                  </button>
+
+                  <div
+                    className={`active-run-badge status-${selectedRun.status}`}
+                    title={`Full Run ID: ${selectedRun.id}`}
+                  >
+                    <CloudLightning className="badge-cloud-icon" />
+                    <span>
+                      RUN ID: {selectedRun.id.length > 13 ? `${selectedRun.id.slice(0, 13)}...` : selectedRun.id}
+                    </span>
+                  </div>
+
+                </>
               )}
             </div>
           </div>
@@ -233,18 +302,6 @@ export default function TerminalReportSection({
                   cloudsentinel@aws-cloud-matrix: ~/fault-experiments / {selectedRun.test_name}
                 </div>
                 <div className="terminal-actions">
-                  <button
-                    className={`term-action-btn ${autoScroll ? "active-scroll" : ""}`}
-                    onClick={() => {
-                      soundFX.playClick();
-                      setAutoScroll(!autoScroll);
-                    }}
-                    title={autoScroll ? "Auto-scroll ON (click to lock position)" : "Auto-scroll OFF"}
-                  >
-                    <ArrowDownCircle />
-                    <span>Auto-Scroll: {autoScroll ? "ON" : "OFF"}</span>
-                  </button>
-
                   <div className="log-filter-group">
                     {["ALL", "INFO", "WARN", "ERROR"].map((lvl) => (
                       <button
@@ -308,6 +365,19 @@ export default function TerminalReportSection({
                     <p>Scenario: {getTestTitle(selectedRun.test_name)}</p>
                   </div>
                 </div>
+
+                <button
+                  className={`pdf-export-btn ${isGeneratingPdf ? "loading" : ""}`}
+                  onClick={handleGeneratePdf}
+                  disabled={isGeneratingPdf}
+                >
+                  {isGeneratingPdf ? (
+                    <Loader2 className="pdf-icon spin" />
+                  ) : (
+                    <Download className="pdf-icon" />
+                  )}
+                  <span>{isGeneratingPdf ? "Generating PDF..." : "Export Report PDF"}</span>
+                </button>
               </div>
 
               <div className="report-sections">

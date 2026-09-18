@@ -42,6 +42,7 @@
   --border-bright: rgba(255, 183, 3, 0.6);
   --cyan-primary: #ffb703;
   --cyan-glow: rgba(255, 183, 3, 0.5);
+  --emerald-accent: #ff9f1c;
   --purple-accent: #f77f00;
   --purple-glow: rgba(247, 127, 0, 0.5);
 }
@@ -56,6 +57,7 @@
   --border-bright: rgba(255, 42, 109, 0.6);
   --cyan-primary: #ff2a6d;
   --cyan-glow: rgba(255, 42, 109, 0.5);
+  --emerald-accent: #ff5a00;
   --purple-accent: #ff5a00;
 }
 
@@ -69,8 +71,10 @@
   --border-bright: rgba(0, 255, 157, 0.6);
   --cyan-primary: #00ff9d;
   --cyan-glow: rgba(0, 255, 157, 0.5);
+  --emerald-accent: #00c864;
   --purple-accent: #05d5a1;
 }
+
 
 * {
   box-sizing: border-box;
@@ -211,35 +215,59 @@ body {
 
 .logo-badge {
   position: relative;
-  width: 56px;
-  height: 56px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22), rgba(157, 78, 223, 0.22));
-  border: 1.5px solid var(--cyan-primary);
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.22), rgba(0, 255, 157, 0.18));
+  border: 1px solid var(--cyan-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 25px var(--cyan-glow);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.35), inset 0 0 12px rgba(0, 240, 255, 0.2);
+  transition: all 0.3s ease;
 }
 
-.radar-ring {
+.logo-badge:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 35px var(--cyan-glow), inset 0 0 20px rgba(0, 240, 255, 0.3);
+  border-color: #ffffff;
+}
+
+.logo-glow-orb {
   position: absolute;
-  inset: -5px;
-  border-radius: 20px;
-  border: 1px dashed var(--cyan-primary);
-  animation: radarRotate 10s linear infinite;
+  inset: 0;
+  border-radius: 14px;
+  background: radial-gradient(circle, rgba(0, 240, 255, 0.4) 0%, rgba(0, 0, 0, 0) 70%);
+  opacity: 0.6;
 }
 
-@keyframes radarRotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+.logo-icon-wrapper {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .logo-icon {
   width: 28px;
   height: 28px;
+  transition: all 0.3s ease;
+}
+
+.safe-glow {
   color: var(--cyan-primary);
   filter: drop-shadow(0 0 10px var(--cyan-primary));
+}
+
+.armed-glow {
+  color: var(--amber-accent);
+  filter: drop-shadow(0 0 10px var(--amber-accent));
+}
+
+.active-glow {
+  color: var(--crimson-accent);
+  filter: drop-shadow(0 0 12px var(--crimson-accent));
 }
 
 .brand-title-row {
@@ -252,11 +280,18 @@ body {
   font-size: 2.3rem;
   font-weight: 900;
   letter-spacing: -0.04em;
-  background: linear-gradient(135deg, #ffffff 30%, var(--cyan-primary) 100%);
+  color: #ffffff;
+}
+
+.brand-title-highlight {
+  background: linear-gradient(135deg, var(--cyan-primary) 0%, var(--emerald-accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+
+
 
 .version-pill {
   font-family: var(--font-mono);
@@ -1321,6 +1356,18 @@ body {
   align-items: center;
 }
 
+.ledger-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pdf-export-btn.small {
+  padding: 3px 9px;
+  font-size: 0.72rem;
+  border-radius: 6px;
+}
+
 .panel-title-group {
   display: flex;
   align-items: center;
@@ -1339,6 +1386,7 @@ body {
   padding: 3px 8px;
   border-radius: 6px;
 }
+
 
 .history-filter-bar {
   display: flex;
@@ -1457,13 +1505,16 @@ body {
   align-items: center;
   background: rgba(8, 14, 28, 0.9);
   border-bottom: 1px solid var(--border-color);
-  padding: 0 16px;
-  height: 50px;
+  padding: 6px 20px;
+  min-height: 54px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .tabs-left {
   display: flex;
-  gap: 4px;
+  align-items: center;
+  gap: 6px;
 }
 
 .nav-tab {
@@ -1473,12 +1524,13 @@ body {
   background: none;
   border: none;
   color: var(--text-muted);
-  padding: 14px 16px;
+  padding: 10px 16px;
   font-size: 0.85rem;
   font-weight: 700;
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
+  border-radius: 6px 6px 0 0;
 }
 
 .nav-tab:hover { color: #fff; }
@@ -1489,13 +1541,33 @@ body {
 
 .tab-icon { width: 16px; height: 16px; }
 
-.active-run-badge {
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 6px;
+.tabs-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
 }
+
+.active-run-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-bright);
+  color: var(--cyan-primary);
+  box-shadow: 0 0 10px var(--cyan-glow);
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
 
 /* Cyber Console Terminal */
 .terminal-window {
@@ -2005,4 +2077,75 @@ body {
 
 .text-cyan { color: var(--cyan-primary); }
 .text-crimson { color: var(--crimson-accent); }
+
+/* PDF Report Export Button Styles */
+.pdf-export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.16), rgba(0, 140, 255, 0.28));
+  border: 1px solid var(--cyan-primary);
+  color: #ffffff;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.pdf-export-btn:hover {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.32), rgba(0, 180, 255, 0.48));
+  box-shadow: 0 0 20px var(--cyan-glow), 0 3px 12px rgba(0, 0, 0, 0.4);
+  transform: translateY(-1px);
+  border-color: #ffffff;
+}
+
+
+.pdf-export-btn:active {
+  transform: translateY(0);
+}
+
+.pdf-export-btn.loading {
+  opacity: 0.75;
+  cursor: wait;
+}
+
+.pdf-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--cyan-primary);
+  transition: color 0.2s ease;
+}
+
+.pdf-export-btn:hover .pdf-icon {
+  color: #ffffff;
+}
+
+.term-action-btn.pdf-btn {
+  background: rgba(0, 240, 255, 0.12);
+  border: 1px solid rgba(0, 240, 255, 0.4);
+  color: #ffffff;
+}
+
+.term-action-btn.pdf-btn:hover {
+  background: rgba(0, 240, 255, 0.28);
+  border-color: var(--cyan-primary);
+  box-shadow: 0 0 15px var(--cyan-glow);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 

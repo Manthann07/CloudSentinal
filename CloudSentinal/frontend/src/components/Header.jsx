@@ -120,36 +120,34 @@ export default function Header({
       </div>
 
       <div className="header-top">
-        {/* Brand Group with Glowing Cloud Sentinel Emblem */}
+        {/* Brand Group with Modern High-Tech Cloud Sentinel Emblem */}
         <div className="brand-group">
-          <div className={`logo-badge ${busyTest ? "cloud-lightning-active" : ""}`}>
-            <div className="radar-ring" />
-            <div className="cloud-aura-bg" />
-            {busyTest ? (
-              <CloudLightning className="logo-icon cloud-icon-glow spin-pulse" />
-            ) : confirmed ? (
-              <CloudRain className="logo-icon cloud-icon-glow" />
-            ) : (
-              <CloudCheck className="logo-icon cloud-icon-glow" />
-            )}
-            <Sparkles className="cloud-sparkle s1" />
-            <Sparkles className="cloud-sparkle s2" />
+          <div className={`logo-badge ${busyTest ? "active-injection" : ""}`}>
+            <div className="logo-glow-orb" />
+            <div className="logo-icon-wrapper">
+              {busyTest ? (
+                <CloudLightning className="logo-icon active-glow spin-pulse" />
+              ) : confirmed ? (
+                <CloudRain className="logo-icon armed-glow" />
+              ) : (
+                <CloudCheck className="logo-icon safe-glow" />
+              )}
+            </div>
           </div>
           <div>
             <div className="brand-title-row">
               <h1 className="brand-title">
-                CloudSentinel
-                <span className="title-cloud-icon-wrapper">
-                  <Cloud className="title-cloud-badge" />
-                </span>
+                Cloud<span className="brand-title-highlight">Sentinel</span>
               </h1>
-              <span className="version-pill">v2.4 CLOUD PRO</span>
+              <span className="version-pill">v2.4 PRO</span>
             </div>
             <p className="brand-subtitle">
               Autonomous AWS Cloud Resilience & Chaos Engineering Platform
             </p>
           </div>
         </div>
+
+
 
         <div className="header-controls">
           {/* Cloud Matrix Weather Status Pill */}
